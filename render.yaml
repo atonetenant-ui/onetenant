@@ -1,21 +1,15 @@
-# render.yaml — One-click deploy config for Render.com
+# render.yaml — OneTenant deployment config
 services:
   - type: web
     name: onetenant
     runtime: node
+    plan: free
+    region: singapore
     buildCommand: npm install
     startCommand: node server.js
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 3001
       - key: JWT_SECRET
         generateValue: true
-      - key: DATA_DIR
-        value: /var/data
-    disk:
-      name: onetenant-data
-      mountPath: /var/data
-      sizeGB: 1

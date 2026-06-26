@@ -37,7 +37,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong', details: err.message });
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🏠 OneTenant running on port ${PORT}`);
   console.log(`   Health: /api/health`);
