@@ -1,4 +1,4 @@
-// server.js — OneTenant Full Stack App
+// server.js — RentEase Full Stack App
 // Serves both the API and the frontend from one process
 require('dotenv').config();
 const express = require('express');
@@ -22,7 +22,7 @@ app.use('/api/notifications', require('./routes/notifications'));
 
 // ─── Health check ───
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', app: 'OneTenant', version: '1.0.0', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', app: 'RentEase', version: '1.0.0', timestamp: new Date().toISOString() });
 });
 
 // ─── Serve frontend (landing page + dashboard) ───
@@ -39,7 +39,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n🏠 OneTenant running on port ${PORT}`);
+  console.log(`\n🏠 RentEase running on port ${PORT}`);
   console.log(`   Health: /api/health`);
   console.log(`   Mode: ${process.env.NODE_ENV || 'development'}\n`);
 });

@@ -1,7 +1,7 @@
-# render.yaml — OneTenant deployment config
+# render.yaml — RentEase deployment config
 services:
   - type: web
-    name: onetenant
+    name: rentease
     runtime: node
     plan: free
     region: singapore

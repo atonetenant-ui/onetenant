@@ -1,7 +1,7 @@
 {
-  "name": "onetenant",
+  "name": "rentease",
   "version": "1.0.0",
-  "description": "OneTenant — Free rental management for Indian landlords",
+  "description": "RentEase \u2013 Rent collection made easy for Indian landlords",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -19,5 +19,6 @@
     "nedb-promises": "^6.0.0",
     "razorpay": "^2.9.2",
     "uuid": "^9.0.0"
-  }
+  },
+  "homepage": "https://rentease.in"
 }
