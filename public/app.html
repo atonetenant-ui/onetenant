@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RentEase — Rent Easy. Live Easy.</title>
+<style>
+  :root {
+    --primary: #1a56db;
+    --primary-dark: #1342b0;
+    --primary-light: #e8f0fe;
+    --accent: #0ea5e9;
+    --success: #16a34a;
+    --success-light: #dcfce7;
+    --warning: #d97706;
+    --warning-light: #fef3c7;
+    --danger: #dc2626;
+    --danger-light: #fee2e2;
+    --surface-0: #f1f5f9;
+    --surface-1: #ffffff;
+    --surface-2: #f8fafc;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --sidebar-bg: #0f172a;
+    --sidebar-text: #cbd5e1;
+    --sidebar-active: #1a56db;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--surface-0); color: var(--text-primary); font-size: 14px; display: flex; height: 100vh; overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar { width: 220px; background: var(--sidebar-bg); display: flex; flex-direction: column; flex-shrink: 0; }
+  .sidebar-logo { padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .logo-mark { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+  .logo-tag { font-size: 10px; color: #64748b; margin-top: 2px; }
+  .sidebar-nav { flex: 1; padding: 12px 8px; overflow-y: auto; }
+  .nav-section { margin-bottom: 20px; }
+  .nav-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #475569; padding: 0 8px; margin-bottom: 6px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; color: var(--sidebar-text); font-size: 13px; transition: all 0.15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
+  .nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .nav-item.active { background: var(--sidebar-active); color: #fff; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .nav-badge { margin-left: auto; background: var(--danger); color: #fff; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px; }
+  .sidebar-footer { padding: 12px 8px; border-top: 1px solid rgba(255,255,255,0.08); }
+  .user-card { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; }
+  .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #fff; flex-shrink: 0; }
+  .user-name { font-size: 12px; color: #e2e8f0; font-weight: 500; }
+  .user-role { font-size: 10px; color: #64748b; }
+
+  /* MAIN */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { background: var(--surface-1); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .page-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+  .page-sub { font-size: 12px; color: var(--text-muted); }
+  .topbar-right { display: flex; align-items: center; gap: 8px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius); font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; text-decoration: none; }
+  .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-outline { background: transparent; color: var(--text-secondary); border-color: var(--border-strong); }
+  .btn-outline:hover { background: var(--surface-2); }
+  .btn-ghost { background: transparent; color: var(--text-secondary); border-color: transparent; }
+  .btn-ghost:hover { background: var(--surface-0); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+  .btn svg { width: 14px; height: 14px; }
+  .content { flex: 1; overflow-y: auto; padding: 24px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* CARDS & GRID */
+  .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+  /* STAT CARDS */
+  .stat-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .stat-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-bottom: 8px; }
+  .stat-value { font-size: 26px; font-weight: 700; color: var(--text-primary); line-height: 1; margin-bottom: 6px; }
+  .stat-change { font-size: 12px; display: flex; align-items: center; gap: 4px; }
+  .stat-up { color: var(--success); }
+  .stat-down { color: var(--danger); }
+  .stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+
+  /* TABLES */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  td { padding: 12px 12px; font-size: 13px; color: var(--text-primary); border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface-2); }
+
+  /* BADGES */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-success { background: var(--success-light); color: #15803d; }
+  .badge-warning { background: var(--warning-light); color: #b45309; }
+  .badge-danger { background: var(--danger-light); color: #b91c1c; }
+  .badge-info { background: var(--primary-light); color: var(--primary-dark); }
+  .badge-gray { background: #f1f5f9; color: #475569; }
+
+  /* FORMS */
+  .form-group { margin-bottom: 16px; }
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+  input, select, textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius); font-size: 13px; color: var(--text-primary); background: var(--surface-1); outline: none; transition: border-color 0.15s; font-family: inherit; }
+  input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,86,219,0.1); }
+  textarea { resize: vertical; min-height: 80px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+  .modal-overlay.hidden { display: none; }
+  .modal { background: var(--surface-1); border-radius: 12px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+  .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .modal-title { font-size: 16px; font-weight: 600; }
+  .modal-body { padding: 20px 24px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+  .close-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px; border-radius: 4px; }
+  .close-btn:hover { color: var(--text-primary); background: var(--surface-0); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+  .tab { padding: 10px 16px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; border-top: none; border-left: none; border-right: none; background: none; }
+  .tab:hover { color: var(--text-primary); }
+  .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* FILTERS */
+  .filters { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-input { position: relative; }
+  .search-input input { padding-left: 32px; width: 220px; }
+  .search-input svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text-muted); }
+
+  /* PROPERTY CARD */
+  .property-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: box-shadow 0.15s; cursor: pointer; }
+  .property-card:hover { box-shadow: var(--shadow-md); }
+  .property-thumb { height: 120px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative; display: flex; align-items: center; justify-content: center; }
+  .property-thumb-2 { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); }
+  .property-thumb-3 { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+  .property-thumb-4 { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+  .property-thumb svg { width: 40px; height: 40px; color: rgba(255,255,255,0.5); }
+  .property-units { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.4); color: #fff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+  .property-info { padding: 14px; }
+  .property-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .property-addr { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+  .property-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .prop-stat { font-size: 11px; }
+  .prop-stat-val { font-weight: 700; font-size: 14px; color: var(--text-primary); }
+  .prop-stat-lbl { color: var(--text-muted); }
+
+  /* AVATAR */
+  .avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .avatar-blue { background: var(--primary-light); color: var(--primary); }
+  .avatar-green { background: var(--success-light); color: var(--success); }
+  .avatar-orange { background: var(--warning-light); color: var(--warning); }
+
+  /* TIMELINE */
+  .timeline { list-style: none; }
+  .timeline li { display: flex; gap: 12px; padding-bottom: 16px; position: relative; }
+  .timeline li:not(:last-child)::before { content: ''; position: absolute; left: 15px; top: 28px; bottom: 0; width: 1px; background: var(--border); }
+  .timeline-dot { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .timeline-content { flex: 1; }
+  .timeline-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .timeline-meta { font-size: 11px; color: var(--text-muted); }
+
+  /* PROGRESS */
+  .progress-bar { height: 6px; background: var(--surface-0); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; background: var(--primary); }
+
+  /* NOTICE CARD */
+  .notice-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; transition: box-shadow 0.15s; }
+  .notice-card:hover { box-shadow: var(--shadow); }
+  .notice-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .notice-content { flex: 1; }
+  .notice-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+  .notice-sub { font-size: 12px; color: var(--text-muted); }
+  .notice-meta { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+
+  /* MAINTENANCE */
+  .maint-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+  .maint-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+  .maint-title { font-size: 13px; font-weight: 600; }
+  .maint-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .maint-footer { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+
+  /* PAYMENT ITEM */
+  .payment-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .payment-item:last-child { border-bottom: none; }
+
+  /* EMPTY STATE */
+  .empty { text-align: center; padding: 48px 24px; }
+  .empty svg { width: 48px; height: 48px; color: var(--text-muted); margin: 0 auto 12px; display: block; }
+  .empty-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .empty-sub { font-size: 13px; color: var(--text-muted); }
+
+  /* ALERT */
+  .alert { display: flex; gap: 10px; padding: 12px 14px; border-radius: var(--radius); margin-bottom: 16px; }
+  .alert-warning { background: var(--warning-light); border: 1px solid #fcd34d; }
+  .alert svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+  .alert-warning svg { color: var(--warning); }
+  .alert-text { font-size: 13px; color: #92400e; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+  /* MISC */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .section-title { font-size: 15px; font-weight: 600; }
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  .gap-8 { gap: 8px; }
+  .flex { display: flex; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .text-muted { color: var(--text-muted); }
+  .text-sm { font-size: 12px; }
+  .font-600 { font-weight: 600; }
+  .mb-16 { margin-bottom: 16px; }
+  .mb-20 { margin-bottom: 20px; }
+  .mt-16 { margin-top: 16px; }
+  .w-full { width: 100%; }
+  .color-success { color: var(--success); }
+  .color-danger { color: var(--danger); }
+  .color-warning { color: var(--warning); }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">RentEase</div>
+    <div class="logo-tag">Rent Easy. Live Easy.</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <button class="nav-item active" onclick="showPage('dashboard', this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Dashboard
+      </button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Management</div>
+      <button class="nav-item" onclick="showPage('tenants', this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Tenants
+      </button>
+      <button class="nav-item" onclick="showPage('rent', this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        Rent Collection
+        <span class="nav-badge">3</span>
+      </button>
+      <button class="nav-item" onclick="showPage('leases', this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Lease Tracker
+      </button>
+      <button class="nav-item" onclick="showPage('maintenance', this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Maintenance
+        <span class="nav-badge">2</span>
+      </button>
+      <button class="nav-item" onclick="showPage('notices', this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        Notices
+      </button>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">PM</div>
+      <div>
+        <div class="user-name">Property Manager</div>
+        <div class="user-role">4 Properties</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div>
+        <div class="page-title" id="page-title">Dashboard</div>
+        <div class="page-sub" id="page-sub">June 2026 overview</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-outline btn-sm" onclick="showPage('notices', document.querySelector('[onclick*=notices]'))">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        Notices
+      </button>
+      <button class="btn btn-primary btn-sm" id="add-btn" onclick="handleAddBtn()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Add Tenant
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ====== DASHBOARD ====== -->
+    <div id="page-dashboard" class="page active">
+      <div class="alert alert-warning">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <div class="alert-text"><strong>3 tenants</strong> have pending rent for June 2026 · <strong>2 maintenance</strong> requests need attention · <strong>1 lease</strong> expiring this month</div>
+      </div>
+
+      <div class="grid-4 mb-20">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#e8f0fe">
+            <svg fill="none" stroke="#1a56db" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <div class="stat-label">Total Tenants</div>
+          <div class="stat-value">18</div>
+          <div class="stat-change stat-up">
+            <svg fill="currentColor" viewBox="0 0 20 20" style="width:12px;height:12px"><path d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"/></svg>
+            2 this month
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#dcfce7">
+            <svg fill="none" stroke="#16a34a" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="stat-label">Monthly Rent</div>
+          <div class="stat-value">₹2.4L</div>
+          <div class="stat-change stat-up">
+            <svg fill="currentColor" viewBox="0 0 20 20" style="width:12px;height:12px"><path d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"/></svg>
+            ₹8,000 vs last month
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fef3c7">
+            <svg fill="none" stroke="#d97706" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="stat-label">Rent Collected</div>
+          <div class="stat-value">₹1.8L</div>
+          <div class="stat-change stat-down">
+            <svg fill="currentColor" viewBox="0 0 20 20" style="width:12px;height:12px"><path d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z"/></svg>
+            ₹60,000 pending
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fee2e2">
+            <svg fill="none" stroke="#dc2626" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <div class="stat-label">Open Requests</div>
+          <div class="stat-value">2</div>
+          <div class="stat-change" style="color:var(--text-muted)">1 urgent · 1 in progress</div>
+        </div>
+      </div>
+
+      <div class="grid-2 mb-20">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Properties</div>
+            <button class="btn btn-ghost btn-sm" style="font-size:12px">Manage</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div style="border:1px solid var(--border);border-radius:8px;padding:12px">
+              <div style="font-size:12px;font-weight:700;margin-bottom:4px">Sunshine Apartments</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">Koramangala, Bangalore</div>
+              <div style="display:flex;justify-content:space-between;font-size:12px">
+                <span style="color:var(--text-muted)">Units</span><span style="font-weight:600">8/8</span>
+              </div>
+              <div class="progress-bar mt-16" style="margin-top:6px"><div class="progress-fill" style="width:100%;background:var(--success)"></div></div>
+            </div>
+            <div style="border:1px solid var(--border);border-radius:8px;padding:12px">
+              <div style="font-size:12px;font-weight:700;margin-bottom:4px">Green Valley</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">HSR Layout, Bangalore</div>
+              <div style="display:flex;justify-content:space-between;font-size:12px">
+                <span style="color:var(--text-muted)">Units</span><span style="font-weight:600">5/6</span>
+              </div>
+              <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:83%"></div></div>
+            </div>
+            <div style="border:1px solid var(--border);border-radius:8px;padding:12px">
+              <div style="font-size:12px;font-weight:700;margin-bottom:4px">Prestige Heights</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">Whitefield, Bangalore</div>
+              <div style="display:flex;justify-content:space-between;font-size:12px">
+                <span style="color:var(--text-muted)">Units</span><span style="font-weight:600">3/4</span>
+              </div>
+              <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:75%"></div></div>
+            </div>
+            <div style="border:1px solid var(--border);border-radius:8px;padding:12px">
+              <div style="font-size:12px;font-weight:700;margin-bottom:4px">Lake View Residency</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">Bellandur, Bangalore</div>
+              <div style="display:flex;justify-content:space-between;font-size:12px">
+                <span style="color:var(--text-muted)">Units</span><span style="font-weight:600">2/2</span>
+              </div>
+              <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:100%;background:var(--success)"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Recent Activity</div></div>
+          <ul class="timeline">
+            <li>
+              <div class="timeline-dot avatar avatar-green"><svg fill="none" stroke="#16a34a" viewBox="0 0 24 24" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div>
+              <div class="timeline-content">
+                <div class="timeline-title">Rent received from Ramesh Kumar</div>
+                <div class="timeline-meta">Sunshine Apts, Flat 3B · ₹18,000 · 2h ago</div>
+              </div>
+            </li>
+            <li>
+              <div class="timeline-dot avatar avatar-blue"><svg fill="none" stroke="#1a56db" viewBox="0 0 24 24" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></div>
+              <div class="timeline-content">
+                <div class="timeline-title">New tenant: Priya Sharma onboarded</div>
+                <div class="timeline-meta">Green Valley, Unit 2A · Yesterday</div>
+              </div>
+            </li>
+            <li>
+              <div class="timeline-dot avatar" style="background:#fee2e2"><svg fill="none" stroke="#dc2626" viewBox="0 0 24 24" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+              <div class="timeline-content">
+                <div class="timeline-title">Maintenance request: Water leak</div>
+                <div class="timeline-meta">Prestige Heights, 1C · Urgent · 1 day ago</div>
+              </div>
+            </li>
+            <li>
+              <div class="timeline-dot avatar avatar-orange"><svg fill="none" stroke="#d97706" viewBox="0 0 24 24" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+              <div class="timeline-content">
+                <div class="timeline-title">Lease renewed: Anil Verma</div>
+                <div class="timeline-meta">Lake View Residency, 1B · 11 month renewal · 2 days ago</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Rent Collection — June 2026</div><span class="badge badge-warning">3 Pending</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tenant</th><th>Property / Unit</th><th>Due Date</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-blue">RK</div>Ramesh Kumar</div></td><td>Sunshine Apts · 3B</td><td>1 Jun</td><td>₹18,000</td><td><span class="badge badge-success">Paid</span></td><td><button class="btn btn-ghost btn-sm">Receipt</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-orange">PS</div>Priya Sharma</div></td><td>Green Valley · 2A</td><td>1 Jun</td><td>₹22,000</td><td><span class="badge badge-danger">Overdue</span></td><td><button class="btn btn-outline btn-sm" onclick="openReminder('Priya Sharma')">Remind</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-green">AV</div>Anil Verma</div></td><td>Lake View · 1B</td><td>5 Jun</td><td>₹28,000</td><td><span class="badge badge-success">Paid</span></td><td><button class="btn btn-ghost btn-sm">Receipt</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-blue">SM</div>Suresh Mani</div></td><td>Sunshine Apts · 1A</td><td>1 Jun</td><td>₹15,000</td><td><span class="badge badge-danger">Overdue</span></td><td><button class="btn btn-outline btn-sm" onclick="openReminder('Suresh Mani')">Remind</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-orange">MK</div>Meena Krishnan</div></td><td>Prestige Heights · 2B</td><td>3 Jun</td><td>₹20,000</td><td><span class="badge badge-warning">Pending</span></td><td><button class="btn btn-outline btn-sm" onclick="openReminder('Meena Krishnan')">Remind</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== TENANTS ====== -->
+    <div id="page-tenants" class="page">
+      <div class="filters">
+        <div class="search-input">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" placeholder="Search tenants…" id="tenant-search" oninput="filterTenants()">
+        </div>
+        <select id="tenant-filter-prop" onchange="filterTenants()" style="width:auto">
+          <option value="">All Properties</option>
+          <option>Sunshine Apartments</option>
+          <option>Green Valley</option>
+          <option>Prestige Heights</option>
+          <option>Lake View Residency</option>
+        </select>
+        <select id="tenant-filter-status" onchange="filterTenants()" style="width:auto">
+          <option value="">All Status</option>
+          <option>Active</option>
+          <option>Notice Period</option>
+          <option>Vacated</option>
+        </select>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table id="tenant-table">
+            <thead><tr><th>Tenant</th><th>Property / Unit</th><th>Phone</th><th>Rent</th><th>Move-in</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr data-name="Ramesh Kumar" data-prop="Sunshine Apartments" data-status="Active"><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar avatar-blue">RK</div><div><div style="font-weight:500">Ramesh Kumar</div><div class="text-muted text-sm">ramesh.k@email.com</div></div></div></td><td>Sunshine Apts · 3B</td><td>+91 98450 12345</td><td>₹18,000</td><td>12 Mar 2024</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-ghost btn-sm" onclick="viewTenant('Ramesh Kumar')">View</button><button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="openReminder('Ramesh Kumar')">Remind</button></td></tr>
+              <tr data-name="Priya Sharma" data-prop="Green Valley" data-status="Active"><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar avatar-orange">PS</div><div><div style="font-weight:500">Priya Sharma</div><div class="text-muted text-sm">priya.s@email.com</div></div></div></td><td>Green Valley · 2A</td><td>+91 99870 56789</td><td>₹22,000</td><td>1 Jun 2026</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-ghost btn-sm" onclick="viewTenant('Priya Sharma')">View</button><button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="openReminder('Priya Sharma')">Remind</button></td></tr>
+              <tr data-name="Anil Verma" data-prop="Lake View Residency" data-status="Active"><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar avatar-green">AV</div><div><div style="font-weight:500">Anil Verma</div><div class="text-muted text-sm">anil.v@email.com</div></div></div></td><td>Lake View · 1B</td><td>+91 97400 34567</td><td>₹28,000</td><td>5 Jan 2023</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-ghost btn-sm" onclick="viewTenant('Anil Verma')">View</button></td></tr>
+              <tr data-name="Suresh Mani" data-prop="Sunshine Apartments" data-status="Active"><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar avatar-blue">SM</div><div><div style="font-weight:500">Suresh Mani</div><div class="text-muted text-sm">suresh.m@email.com</div></div></div></td><td>Sunshine Apts · 1A</td><td>+91 96230 78901</td><td>₹15,000</td><td>20 Aug 2022</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-ghost btn-sm" onclick="viewTenant('Suresh Mani')">View</button><button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="openReminder('Suresh Mani')">Remind</button></td></tr>
+              <tr data-name="Meena Krishnan" data-prop="Prestige Heights" data-status="Notice Period"><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar avatar-orange">MK</div><div><div style="font-weight:500">Meena Krishnan</div><div class="text-muted text-sm">meena.k@email.com</div></div></div></td><td>Prestige Heights · 2B</td><td>+91 94590 23456</td><td>₹20,000</td><td>10 Apr 2021</td><td><span class="badge badge-warning">Notice Period</span></td><td><button class="btn btn-ghost btn-sm" onclick="viewTenant('Meena Krishnan')">View</button></td></tr>
+              <tr data-name="Kavitha Nair" data-prop="Sunshine Apartments" data-status="Active"><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar avatar-green">KN</div><div><div style="font-weight:500">Kavitha Nair</div><div class="text-muted text-sm">kavitha.n@email.com</div></div></div></td><td>Sunshine Apts · 4C</td><td>+91 98760 45678</td><td>₹19,500</td><td>15 Sep 2023</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-ghost btn-sm" onclick="viewTenant('Kavitha Nair')">View</button></td></tr>
+              <tr data-name="Vikram Singh" data-prop="Green Valley" data-status="Active"><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar avatar-blue">VS</div><div><div style="font-weight:500">Vikram Singh</div><div class="text-muted text-sm">vikram.s@email.com</div></div></div></td><td>Green Valley · 3B</td><td>+91 95510 67890</td><td>₹21,000</td><td>1 Feb 2025</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-ghost btn-sm" onclick="viewTenant('Vikram Singh')">View</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== RENT COLLECTION ====== -->
+    <div id="page-rent" class="page">
+      <div class="grid-3 mb-20">
+        <div class="stat-card"><div class="stat-label">Total Due (Jun)</div><div class="stat-value">₹2,40,000</div><div class="text-muted text-sm" style="margin-top:4px">18 tenants</div></div>
+        <div class="stat-card"><div class="stat-label">Collected</div><div class="stat-value" style="color:var(--success)">₹1,80,000</div><div class="text-sm" style="margin-top:4px;color:var(--success)">75% collection rate</div></div>
+        <div class="stat-card"><div class="stat-label">Outstanding</div><div class="stat-value" style="color:var(--danger)">₹60,000</div><div class="text-sm" style="margin-top:4px;color:var(--danger)">3 tenants overdue</div></div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab(this, 'tab-all')">All Tenants</button>
+        <button class="tab" onclick="switchTab(this, 'tab-overdue')">Overdue</button>
+        <button class="tab" onclick="switchTab(this, 'tab-paid')">Paid</button>
+      </div>
+
+      <div id="tab-all" class="card">
+        <div class="card-header"><div class="card-title">June 2026 Rent Status</div><button class="btn btn-primary btn-sm" onclick="openMarkPaid()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>Record Payment</button></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tenant</th><th>Property</th><th>Amount</th><th>Due Date</th><th>Days Overdue</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-blue">RK</div>Ramesh Kumar</div></td><td>Sunshine · 3B</td><td>₹18,000</td><td>1 Jun</td><td>—</td><td><span class="badge badge-success">Paid</span></td><td><button class="btn btn-ghost btn-sm">Receipt</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-orange">PS</div>Priya Sharma</div></td><td>Green Valley · 2A</td><td>₹22,000</td><td>1 Jun</td><td style="color:var(--danger);font-weight:600">28 days</td><td><span class="badge badge-danger">Overdue</span></td><td><button class="btn btn-outline btn-sm" onclick="openReminder('Priya Sharma')">Remind</button><button class="btn btn-primary btn-sm" style="margin-left:4px" onclick="openMarkPaid()">Mark Paid</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-green">AV</div>Anil Verma</div></td><td>Lake View · 1B</td><td>₹28,000</td><td>5 Jun</td><td>—</td><td><span class="badge badge-success">Paid</span></td><td><button class="btn btn-ghost btn-sm">Receipt</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-blue">SM</div>Suresh Mani</div></td><td>Sunshine · 1A</td><td>₹15,000</td><td>1 Jun</td><td style="color:var(--danger);font-weight:600">28 days</td><td><span class="badge badge-danger">Overdue</span></td><td><button class="btn btn-outline btn-sm" onclick="openReminder('Suresh Mani')">Remind</button><button class="btn btn-primary btn-sm" style="margin-left:4px" onclick="openMarkPaid()">Mark Paid</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-orange">MK</div>Meena Krishnan</div></td><td>Prestige · 2B</td><td>₹20,000</td><td>3 Jun</td><td style="color:var(--warning);font-weight:600">26 days</td><td><span class="badge badge-warning">Pending</span></td><td><button class="btn btn-outline btn-sm" onclick="openReminder('Meena Krishnan')">Remind</button><button class="btn btn-primary btn-sm" style="margin-left:4px" onclick="openMarkPaid()">Mark Paid</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-green">KN</div>Kavitha Nair</div></td><td>Sunshine · 4C</td><td>₹19,500</td><td>1 Jun</td><td>—</td><td><span class="badge badge-success">Paid</span></td><td><button class="btn btn-ghost btn-sm">Receipt</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-blue">VS</div>Vikram Singh</div></td><td>Green Valley · 3B</td><td>₹21,000</td><td>1 Jun</td><td>—</td><td><span class="badge badge-success">Paid</span></td><td><button class="btn btn-ghost btn-sm">Receipt</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div id="tab-overdue" style="display:none" class="card">
+        <div class="card-header"><div class="card-title">Overdue Payments</div><button class="btn btn-outline btn-sm" onclick="sendBulkReminder()">Send Bulk Reminder</button></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tenant</th><th>Property</th><th>Amount</th><th>Days Overdue</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-orange">PS</div>Priya Sharma</div></td><td>Green Valley · 2A</td><td>₹22,000</td><td style="color:var(--danger);font-weight:600">28 days</td><td><button class="btn btn-outline btn-sm" onclick="openReminder('Priya Sharma')">Remind</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-blue">SM</div>Suresh Mani</div></td><td>Sunshine · 1A</td><td>₹15,000</td><td style="color:var(--danger);font-weight:600">28 days</td><td><button class="btn btn-outline btn-sm" onclick="openReminder('Suresh Mani')">Remind</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-orange">MK</div>Meena Krishnan</div></td><td>Prestige · 2B</td><td>₹20,000</td><td style="color:var(--warning);font-weight:600">26 days</td><td><button class="btn btn-outline btn-sm" onclick="openReminder('Meena Krishnan')">Remind</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div id="tab-paid" style="display:none" class="card">
+        <div class="card-header"><div class="card-title">Paid This Month</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tenant</th><th>Property</th><th>Amount</th><th>Paid On</th><th>Mode</th></tr></thead>
+            <tbody>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-blue">RK</div>Ramesh Kumar</div></td><td>Sunshine · 3B</td><td>₹18,000</td><td>3 Jun 2026</td><td><span class="badge badge-info">UPI</span></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-green">AV</div>Anil Verma</div></td><td>Lake View · 1B</td><td>₹28,000</td><td>5 Jun 2026</td><td><span class="badge badge-info">Razorpay</span></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-green">KN</div>Kavitha Nair</div></td><td>Sunshine · 4C</td><td>₹19,500</td><td>1 Jun 2026</td><td><span class="badge badge-info">NEFT</span></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-blue">VS</div>Vikram Singh</div></td><td>Green Valley · 3B</td><td>₹21,000</td><td>2 Jun 2026</td><td><span class="badge badge-info">UPI</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== LEASES ====== -->
+    <div id="page-leases" class="page">
+      <div class="grid-3 mb-20">
+        <div class="stat-card"><div class="stat-label">Active Leases</div><div class="stat-value">17</div></div>
+        <div class="stat-card"><div class="stat-label">Expiring (30 days)</div><div class="stat-value" style="color:var(--warning)">3</div></div>
+        <div class="stat-card"><div class="stat-label">Avg. Lease Duration</div><div class="stat-value">11 mo</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Lease Agreements</div><button class="btn btn-primary btn-sm" onclick="openAddLease()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>New Lease</button></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tenant</th><th>Property / Unit</th><th>Start Date</th><th>End Date</th><th>Rent</th><th>Deposit</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-blue">RK</div>Ramesh Kumar</div></td><td>Sunshine · 3B</td><td>12 Mar 2024</td><td>11 Mar 2025</td><td>₹18,000</td><td>₹54,000</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-ghost btn-sm">View</button><button class="btn btn-outline btn-sm" style="margin-left:4px">Renew</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-orange">PS</div>Priya Sharma</div></td><td>Green Valley · 2A</td><td>1 Jun 2026</td><td>31 May 2027</td><td>₹22,000</td><td>₹66,000</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-green">AV</div>Anil Verma</div></td><td>Lake View · 1B</td><td>5 Jan 2026</td><td>4 Dec 2026</td><td>₹28,000</td><td>₹84,000</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-ghost btn-sm">View</button><button class="btn btn-outline btn-sm" style="margin-left:4px">Renew</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-orange">MK</div>Meena Krishnan</div></td><td>Prestige · 2B</td><td>10 Apr 2025</td><td>9 Jul 2026</td><td>₹20,000</td><td>₹60,000</td><td><span class="badge badge-warning">Expiring Soon</span></td><td><button class="btn btn-ghost btn-sm">View</button><button class="btn btn-primary btn-sm" style="margin-left:4px">Renew</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-blue">SM</div>Suresh Mani</div></td><td>Sunshine · 1A</td><td>20 Aug 2024</td><td>19 Jul 2025</td><td>₹15,000</td><td>₹45,000</td><td><span class="badge badge-warning">Expiring Soon</span></td><td><button class="btn btn-ghost btn-sm">View</button><button class="btn btn-primary btn-sm" style="margin-left:4px">Renew</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar avatar-green">KN</div>Kavitha Nair</div></td><td>Sunshine · 4C</td><td>15 Sep 2025</td><td>14 Aug 2026</td><td>₹19,500</td><td>₹58,500</td><td><span class="badge badge-warning">Expiring Soon</span></td><td><button class="btn btn-ghost btn-sm">View</button><button class="btn btn-primary btn-sm" style="margin-left:4px">Renew</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== MAINTENANCE ====== -->
+    <div id="page-maintenance" class="page">
+      <div class="grid-3 mb-20">
+        <div class="stat-card"><div class="stat-label">Open Requests</div><div class="stat-value">2</div></div>
+        <div class="stat-card"><div class="stat-label">In Progress</div><div class="stat-value" style="color:var(--warning)">1</div></div>
+        <div class="stat-card"><div class="stat-label">Resolved (Month)</div><div class="stat-value" style="color:var(--success)">5</div></div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">Maintenance Requests</div>
+        <button class="btn btn-primary btn-sm" onclick="openAddMaintenance()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>Log Request</button>
+      </div>
+
+      <div class="maint-card">
+        <div class="maint-header">
+          <div><div class="maint-title">Water leakage in bathroom ceiling</div><div class="maint-sub">Prestige Heights · Flat 1C · Reported by Raj Mohan · 28 Jun 2026</div></div>
+          <span class="badge badge-danger">Urgent</span>
+        </div>
+        <div style="font-size:13px;color:var(--text-secondary);padding:8px 12px;background:var(--surface-2);border-radius:6px">Water is dripping from the bathroom ceiling, suspected pipe leak from floor above. Requires immediate plumber inspection.</div>
+        <div class="maint-footer">
+          <span class="badge badge-gray">Open</span>
+          <button class="btn btn-primary btn-sm" onclick="openAssign('Water leakage — Flat 1C')">Assign Vendor</button>
+          <button class="btn btn-outline btn-sm" onclick="openReminder('Raj Mohan')">Notify Tenant</button>
+        </div>
+      </div>
+
+      <div class="maint-card">
+        <div class="maint-header">
+          <div><div class="maint-title">Electrical socket not working — bedroom</div><div class="maint-sub">Green Valley · Unit 3B · Reported by Vikram Singh · 25 Jun 2026</div></div>
+          <span class="badge badge-warning">Moderate</span>
+        </div>
+        <div style="font-size:13px;color:var(--text-secondary);padding:8px 12px;background:var(--surface-2);border-radius:6px">Two sockets in the master bedroom are non-functional. Electrician to inspect wiring and replace sockets if needed.</div>
+        <div class="maint-footer">
+          <span class="badge badge-info">In Progress</span>
+          <span style="font-size:12px;color:var(--text-muted)">Assigned: Kumar Electricals · 27 Jun</span>
+          <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="markResolved('Electrical socket')">Mark Resolved</button>
+        </div>
+      </div>
+
+      <div class="maint-card" style="opacity:0.6">
+        <div class="maint-header">
+          <div><div class="maint-title">Broken door hinge — main entrance</div><div class="maint-sub">Sunshine Apts · 4C · Reported by Kavitha Nair · 15 Jun 2026</div></div>
+          <span class="badge badge-gray">Low</span>
+        </div>
+        <div class="maint-footer">
+          <span class="badge badge-success">Resolved</span>
+          <span style="font-size:12px;color:var(--text-muted)">Completed: 20 Jun 2026 · Cost: ₹850</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== NOTICES ====== -->
+    <div id="page-notices" class="page">
+      <div class="section-header mb-20">
+        <div class="section-title">Notices & Communication</div>
+        <button class="btn btn-primary btn-sm" onclick="openComposeNotice()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>Compose Notice</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab(this, 'ntab-all')">All Notices</button>
+        <button class="tab" onclick="switchTab(this, 'ntab-sent')">Sent</button>
+        <button class="tab" onclick="switchTab(this, 'ntab-drafts')">Drafts</button>
+      </div>
+
+      <div id="ntab-all">
+        <div class="notice-card">
+          <div class="notice-icon" style="background:#fee2e2"><svg fill="none" stroke="#dc2626" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
+          <div class="notice-content">
+            <div class="notice-title">Rent Overdue — Final Reminder</div>
+            <div class="notice-sub">Your rent of ₹22,000 for June 2026 is overdue by 28 days. Please clear the dues within 7 days to avoid penalty charges.</div>
+            <div class="notice-meta"><span class="badge badge-danger">Overdue Notice</span><span class="text-muted text-sm">To: Priya Sharma · Sent 27 Jun</span></div>
+          </div>
+        </div>
+        <div class="notice-card">
+          <div class="notice-icon" style="background:#fef3c7"><svg fill="none" stroke="#d97706" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+          <div class="notice-content">
+            <div class="notice-title">Lease Renewal Due — Action Required</div>
+            <div class="notice-sub">Your lease for Prestige Heights, Flat 2B is expiring on 9 Jul 2026. Please confirm renewal or vacate notice by 5 Jul 2026.</div>
+            <div class="notice-meta"><span class="badge badge-warning">Lease Expiry</span><span class="text-muted text-sm">To: Meena Krishnan · Sent 25 Jun</span></div>
+          </div>
+        </div>
+        <div class="notice-card">
+          <div class="notice-icon" style="background:#e8f0fe"><svg fill="none" stroke="#1a56db" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+          <div class="notice-content">
+            <div class="notice-title">Water supply interruption — 30 Jun (8 AM – 2 PM)</div>
+            <div class="notice-sub">Scheduled maintenance work will cause water supply interruption at Sunshine Apartments on 30 June 2026. Please store sufficient water in advance.</div>
+            <div class="notice-meta"><span class="badge badge-info">Circular</span><span class="text-muted text-sm">To: All tenants · Sunshine Apts · Sent 28 Jun</span></div>
+          </div>
+        </div>
+        <div class="notice-card">
+          <div class="notice-icon" style="background:#dcfce7"><svg fill="none" stroke="#16a34a" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div>
+          <div class="notice-content">
+            <div class="notice-title">Welcome to RentEase — Priya Sharma</div>
+            <div class="notice-sub">Welcome to Green Valley, Unit 2A! Your rent due date is 1st of every month. Use the RentEase portal to pay rent, raise maintenance requests, and download receipts.</div>
+            <div class="notice-meta"><span class="badge badge-success">Welcome</span><span class="text-muted text-sm">To: Priya Sharma · Sent 1 Jun</span></div>
+          </div>
+        </div>
+      </div>
+      <div id="ntab-sent" style="display:none">
+        <div class="card"><div class="empty"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg><div class="empty-title">Sent notices will appear here</div><div class="empty-sub">Notices sent to individual tenants appear in this tab.</div></div></div>
+      </div>
+      <div id="ntab-drafts" style="display:none">
+        <div class="card"><div class="empty"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg><div class="empty-title">No drafts saved</div><div class="empty-sub">Compose a notice and save it as draft to see it here.</div></div></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ====== MODALS ====== -->
+
+<!-- Add Tenant Modal -->
+<div class="modal-overlay hidden" id="modal-add-tenant">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add New Tenant</div><button class="close-btn" onclick="closeModal('modal-add-tenant')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label>Full Name</label><input type="text" placeholder="e.g. Ramesh Kumar"></div><div class="form-group"><label>Phone</label><input type="tel" placeholder="+91 98XXX XXXXX"></div></div>
+      <div class="form-row"><div class="form-group"><label>Email</label><input type="email" placeholder="tenant@email.com"></div><div class="form-group"><label>Aadhar / ID</label><input type="text" placeholder="XXXX XXXX XXXX"></div></div>
+      <div class="form-row"><div class="form-group"><label>Property</label><select><option>Sunshine Apartments</option><option>Green Valley</option><option>Prestige Heights</option><option>Lake View Residency</option></select></div><div class="form-group"><label>Unit / Flat</label><input type="text" placeholder="e.g. 3B"></div></div>
+      <div class="form-row"><div class="form-group"><label>Move-in Date</label><input type="date"></div><div class="form-group"><label>Monthly Rent (₹)</label><input type="number" placeholder="e.g. 18000"></div></div>
+      <div class="form-row"><div class="form-group"><label>Security Deposit (₹)</label><input type="number" placeholder="e.g. 54000"></div><div class="form-group"><label>Lease Duration</label><select><option>11 months</option><option>12 months</option><option>24 months</option></select></div></div>
+      <div class="form-group"><label>Emergency Contact</label><input type="text" placeholder="Name & phone"></div>
+      <div class="form-group"><label>Notes</label><textarea placeholder="Any additional notes about the tenant…"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-add-tenant')">Cancel</button><button class="btn btn-primary" onclick="saveTenant()">Add Tenant</button></div>
+  </div>
+</div>
+
+<!-- Send Reminder Modal -->
+<div class="modal-overlay hidden" id="modal-reminder">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header"><div class="modal-title">Send Payment Reminder</div><button class="close-btn" onclick="closeModal('modal-reminder')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>To</label><input type="text" id="reminder-to" readonly style="background:var(--surface-2)"></div>
+      <div class="form-group"><label>Channel</label><select><option>WhatsApp</option><option>SMS</option><option>Email</option></select></div>
+      <div class="form-group"><label>Message</label><textarea id="reminder-msg" style="min-height:120px"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-reminder')">Cancel</button><button class="btn btn-primary" onclick="sendReminder()">Send Reminder</button></div>
+  </div>
+</div>
+
+<!-- Mark Paid Modal -->
+<div class="modal-overlay hidden" id="modal-mark-paid">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header"><div class="modal-title">Record Rent Payment</div><button class="close-btn" onclick="closeModal('modal-mark-paid')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Tenant</label><select><option>Priya Sharma</option><option>Suresh Mani</option><option>Meena Krishnan</option></select></div>
+      <div class="form-row"><div class="form-group"><label>Amount (₹)</label><input type="number" placeholder="e.g. 22000"></div><div class="form-group"><label>Payment Date</label><input type="date"></div></div>
+      <div class="form-row"><div class="form-group"><label>Payment Mode</label><select><option>UPI</option><option>NEFT</option><option>IMPS</option><option>Razorpay</option><option>Cash</option><option>Cheque</option></select></div><div class="form-group"><label>Reference / UTR</label><input type="text" placeholder="Transaction ref."></div></div>
+      <div class="form-group"><label>Notes</label><input type="text" placeholder="Optional notes"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-mark-paid')">Cancel</button><button class="btn btn-primary" onclick="savePayment()">Record Payment</button></div>
+  </div>
+</div>
+
+<!-- Assign Vendor Modal -->
+<div class="modal-overlay hidden" id="modal-assign">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header"><div class="modal-title">Assign Vendor</div><button class="close-btn" onclick="closeModal('modal-assign')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Task</label><input type="text" id="assign-task" readonly style="background:var(--surface-2)"></div>
+      <div class="form-group"><label>Vendor / Contractor</label><select><option>Kumar Electricals</option><option>Sharma Plumbing</option><option>Quick Fix Services</option><option>CityPro Maintenance</option><option>Other (enter below)</option></select></div>
+      <div class="form-group"><label>Vendor Contact</label><input type="tel" placeholder="+91 XXXXX XXXXX"></div>
+      <div class="form-row"><div class="form-group"><label>Scheduled Date</label><input type="date"></div><div class="form-group"><label>Est. Cost (₹)</label><input type="number" placeholder="Optional"></div></div>
+      <div class="form-group"><label>Instructions for Vendor</label><textarea placeholder="Access instructions, scope of work…"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-assign')">Cancel</button><button class="btn btn-primary" onclick="saveAssign()">Assign</button></div>
+  </div>
+</div>
+
+<!-- Compose Notice Modal -->
+<div class="modal-overlay hidden" id="modal-notice">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Compose Notice</div><button class="close-btn" onclick="closeModal('modal-notice')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label>Notice Type</label><select><option>Rent Reminder</option><option>Overdue Notice</option><option>Lease Expiry</option><option>Maintenance Update</option><option>Circular / Announcement</option><option>Vacate Notice</option><option>Welcome</option></select></div><div class="form-group"><label>Send To</label><select><option>Individual Tenant</option><option>All — Sunshine Apts</option><option>All — Green Valley</option><option>All — Prestige Heights</option><option>All — Lake View</option><option>All Properties</option></select></div></div>
+      <div class="form-group"><label>Select Tenant (if individual)</label><select><option>Ramesh Kumar</option><option>Priya Sharma</option><option>Anil Verma</option><option>Suresh Mani</option><option>Meena Krishnan</option></select></div>
+      <div class="form-group"><label>Subject</label><input type="text" placeholder="e.g. Rent overdue — June 2026"></div>
+      <div class="form-group"><label>Message</label><textarea style="min-height:140px" placeholder="Write your notice message here…"></textarea></div>
+      <div class="form-row"><div class="form-group"><label>Channel</label><select><option>WhatsApp</option><option>SMS</option><option>Email</option><option>All Channels</option></select></div><div class="form-group"><label>Schedule</label><select><option>Send Now</option><option>Schedule for Later</option></select></div></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-notice')">Save Draft</button><button class="btn btn-primary" onclick="sendNotice()">Send Notice</button></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" style="position:fixed;bottom:24px;right:24px;background:#0f172a;color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:500;z-index:200;opacity:0;transition:opacity 0.3s;pointer-events:none;display:flex;align-items:center;gap:8px">
+  <svg fill="none" stroke="#4ade80" viewBox="0 0 24 24" style="width:16px;height:16px;flex-shrink:0"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+  <span id="toast-msg">Done</span>
+</div>
+
+<script>
+const pageConfig = {
+  dashboard: { title: 'Dashboard', sub: 'June 2026 overview', btn: 'Add Tenant' },
+  tenants: { title: 'Tenant Management', sub: '18 active tenants across 4 properties', btn: 'Add Tenant' },
+  rent: { title: 'Rent Collection', sub: 'June 2026 · ₹60,000 outstanding', btn: 'Record Payment' },
+  leases: { title: 'Lease Tracker', sub: '17 active leases · 3 expiring soon', btn: 'New Lease' },
+  maintenance: { title: 'Maintenance', sub: '2 open requests', btn: 'Log Request' },
+  notices: { title: 'Notices & Communication', sub: 'Send and track tenant notices', btn: 'Compose Notice' }
+};
+
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  const cfg = pageConfig[name] || {};
+  document.getElementById('page-title').textContent = cfg.title || '';
+  document.getElementById('page-sub').textContent = cfg.sub || '';
+  document.getElementById('add-btn').textContent = '';
+  const btnIcon = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  btnIcon.setAttribute('fill','none'); btnIcon.setAttribute('stroke','currentColor'); btnIcon.setAttribute('viewBox','0 0 24 24'); btnIcon.style.width='14px'; btnIcon.style.height='14px';
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('stroke-linecap','round'); path.setAttribute('stroke-linejoin','round'); path.setAttribute('stroke-width','2'); path.setAttribute('d','M12 4v16m8-8H4');
+  btnIcon.appendChild(path);
+  document.getElementById('add-btn').appendChild(btnIcon);
+  document.getElementById('add-btn').appendChild(document.createTextNode(' ' + cfg.btn));
+}
+
+function handleAddBtn() {
+  const title = document.getElementById('page-title').textContent;
+  if (title.includes('Tenant')) openAddTenant();
+  else if (title.includes('Rent')) openMarkPaid();
+  else if (title.includes('Lease')) openAddLease();
+  else if (title.includes('Maintenance')) openAddMaintenance();
+  else if (title.includes('Notice')) openComposeNotice();
+}
+
+function switchTab(el, tabId) {
+  const parent = el.parentElement;
+  parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const tabContents = ['tab-all','tab-overdue','tab-paid','ntab-all','ntab-sent','ntab-drafts'];
+  tabContents.forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
+  const target = document.getElementById(tabId);
+  if (target) target.style.display = '';
+}
+
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+function openAddTenant() { openModal('modal-add-tenant'); }
+function openMarkPaid() { openModal('modal-mark-paid'); }
+function openAddLease() { openModal('modal-mark-paid'); }
+function openAddMaintenance() { openModal('modal-assign'); document.getElementById('assign-task').value = 'New Request'; }
+function openComposeNotice() { openModal('modal-notice'); }
+
+function openReminder(name) {
+  document.getElementById('reminder-to').value = name;
+  document.getElementById('reminder-msg').value = `Dear ${name},\n\nThis is a reminder that your rent payment for June 2026 is pending. Kindly clear the dues at your earliest convenience to avoid any late fees.\n\nFor any queries, please contact your property manager.\n\nThank you,\nRentEase Property Management`;
+  openModal('modal-reminder');
+}
+
+function openAssign(task) {
+  document.getElementById('assign-task').value = task;
+  openModal('modal-assign');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(() => { t.style.opacity = '0'; }, 3000);
+}
+
+function saveTenant() { closeModal('modal-add-tenant'); showToast('Tenant added successfully'); }
+function sendReminder() { closeModal('modal-reminder'); showToast('Reminder sent successfully'); }
+function savePayment() { closeModal('modal-mark-paid'); showToast('Payment recorded'); }
+function saveAssign() { closeModal('modal-assign'); showToast('Vendor assigned'); }
+function sendNotice() { closeModal('modal-notice'); showToast('Notice sent'); }
+function sendBulkReminder() { showToast('Bulk reminders sent to 3 tenants'); }
+function markResolved(name) { showToast('Request marked as resolved'); }
+function viewTenant(name) { showToast('Loading ' + name + '\'s profile…'); }
+
+function filterTenants() {
+  const search = document.getElementById('tenant-search').value.toLowerCase();
+  const prop = document.getElementById('tenant-filter-prop').value;
+  const status = document.getElementById('tenant-filter-status').value;
+  document.querySelectorAll('#tenant-table tbody tr').forEach(row => {
+    const name = (row.dataset.name || '').toLowerCase();
+    const rowProp = row.dataset.prop || '';
+    const rowStatus = row.dataset.status || '';
+    const matchSearch = !search || name.includes(search);
+    const matchProp = !prop || rowProp === prop;
+    const matchStatus = !status || rowStatus === status;
+    row.style.display = (matchSearch && matchProp && matchStatus) ? '' : 'none';
+  });
+}
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) { if(e.target === this) this.classList.add('hidden'); });
+});
+</script>
+</body>
+</html>
