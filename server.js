@@ -1,5 +1,5 @@
 // server.js — RentEase Full Stack App
-// Serves both the API and the frontend from one process
+// Serves both the marketing website and the dashboard from one process
 require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
@@ -25,9 +25,19 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', app: 'RentEase', version: '1.0.0', timestamp: new Date().toISOString() });
 });
 
-// ─── Serve frontend (landing page + dashboard) ───
+// ─── Static assets ───
 app.use(express.static(path.join(__dirname, 'public')));
-app.get('*', (req, res) => {
+
+// ─── Marketing website at root ───
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'landing.html'));
+});
+
+// ─── Dashboard app at /app ───
+app.get('/app', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+app.get('/app/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
@@ -40,7 +50,9 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🏠 RentEase running on port ${PORT}`);
-  console.log(`   Health: /api/health`);
+  console.log(`   Landing:   /`);
+  console.log(`   Dashboard: /app`);
+  console.log(`   Health:    /api/health`);
   console.log(`   Mode: ${process.env.NODE_ENV || 'development'}\n`);
 });
 
